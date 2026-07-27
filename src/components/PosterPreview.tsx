@@ -179,6 +179,7 @@ export const PosterPreview: React.FC<PosterPreviewProps> = ({
               </div>
             </div>
           )}
+        </div>
       </div>
 
       {/* Footer */}
