@@ -8,6 +8,10 @@ export interface LessonRecord {
   readingText: string;
   translationText: string;
   vocabulary: VocabularyItem[];
+  overallGrammar?: string;
+  readingText2?: string;
+  translationText2?: string;
+  reading2Answers?: string[];
   generatedImage: string | null;
   generatedPrompt: string | null;
   score?: number; // speaking score

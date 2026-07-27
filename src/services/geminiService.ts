@@ -121,7 +121,6 @@ export interface VocabularyItem {
   ipa: string;
   meaning: string;
   emoji?: string;
-  grammarSummary?: string;
   example?: string;
 }
 
@@ -131,23 +130,30 @@ export interface ContentGenerationResult {
   topicName: string;
   translation: string;
   vocabulary: VocabularyItem[];
+  overallGrammar?: string;
   readingText2?: string;
   translation2?: string;
+  reading2Answers?: string[];
 }
 
 export type EnglishLevel = "Starters" | "Movers" | "Flyers" | "A1" | "A2" | "B1" | "B2";
 
 /**
- * Classifies an API error and throws a standardized error message.
+ * Normalizes text to help match user input with expected strings.
  */
-function handleApiError(err: any): never {
-  console.error("Gemini API Error:", err);
-  
-  if (isQuotaError(err)) {
-    throw new Error("QUOTA_EXCEEDED");
-  }
+export const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+};
+
+const handleApiError = (err: any) => {
   if (isAuthError(err)) {
     throw new Error("INVALID_KEY");
+  } else if (isQuotaError(err)) {
+    throw new Error("QUOTA_EXCEEDED");
   }
   throw err;
 }
@@ -220,7 +226,7 @@ export const generateContent = async (
     ? `
   ⚠️ ABSOLUTE RULE FOR 'useInput' MODE:
   - Copy the user's input text EXACTLY into "readingText" (Word for word).
-  - Use the exact same input for "readingText2" but replace all instances of the 30 vocabulary words with "....................".
+  - Use the exact same input for "readingText2" but replace all instances of the 30 vocabulary words with numbered blanks like "(1)", "(2)", "(3)".
   - The "translation" and "translation2" must translate the FULL texts.
   ` 
     : '';
@@ -234,28 +240,31 @@ export const generateContent = async (
   Your task is to generate:
   1. An image generation prompt for a highly realistic, clear educational illustration matching the topic and grammar. Include quality keywords: "photorealistic, 8k UHD resolution, vivid colors".
   2. "readingText": A reading passage appropriate for level ${level}. MUST contain ALL 30 vocabulary words you generate (bold them using Markdown **word**). Incorporate the grammar topic: "${grammarTopic}". ${mode === 'useInput' ? "USE EXACT USER TEXT." : generateModeInstructions}
-  3. "readingText2": A SECOND reading passage with DIFFERENT content but using the SAME 30 vocabulary words and grammar topic. In this text, replace every occurrence of the 30 vocabulary words with exactly "...................." (20 dots) so students can listen and fill in the blanks.
-  4. A short title/topic name (max 5 words).
-  5. "translation": Vietnamese translation of readingText.
-  6. "translation2": Vietnamese translation of readingText2.
-  7. "vocabulary": A list of EXACTLY 30 key vocabulary words. For each word include:
+  3. "readingText2": A SECOND reading passage with DIFFERENT content but using the SAME 30 vocabulary words and grammar topic. In this text, replace every occurrence of the 30 vocabulary words with numbered blanks exactly like "(1)", "(2)", "(3)" etc. up to the total number of blanks.
+  4. "reading2Answers": An array of strings containing the correct words for each numbered blank in readingText2, in order.
+  5. A short title/topic name (max 5 words).
+  6. "translation": Vietnamese translation of readingText.
+  7. "translation2": Vietnamese translation of readingText2.
+  8. "vocabulary": A list of EXACTLY 30 key vocabulary words. For each word include:
      - "word": the English word
      - "ipa": phonetic transcription
      - "meaning": brief Vietnamese meaning
      - "emoji": a relevant emoji
-     - "grammarSummary": a brief summary of how it fits the grammar topic (in Vietnamese)
      - "example": a short example sentence in English using the word.
+  9. "overallGrammar": A brief, engaging summary of the grammar topic ("${grammarTopic}") and how it's used in the text (in Vietnamese).
   
   Output the result strictly in JSON format:
   {
     "prompt": "string",
     "readingText": "string",
     "readingText2": "string",
+    "reading2Answers": ["string", "string"],
     "topicName": "string",
     "translation": "string",
     "translation2": "string",
+    "overallGrammar": "string",
     "vocabulary": [
-      { "word": "string", "ipa": "string", "meaning": "string", "emoji": "string", "grammarSummary": "string", "example": "string" }
+      { "word": "string", "ipa": "string", "meaning": "string", "emoji": "string", "example": "string" }
     ]
   }
   Note: Ensure exactly 30 vocabulary items.`;

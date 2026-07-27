@@ -21,9 +21,28 @@ interface PosterPreviewProps {
   onDownloadPoster: () => void;
   onToggleTranslation: () => void;
   posterRef: React.RefObject<HTMLDivElement | null>;
+  grammarSummary?: string | null;
 }
 
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5];
+
+const renderMarkdown = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-black text-brand-blue-dark">{part.slice(2, -2)}</strong>;
+    }
+    return <span key={i} className="font-medium">{part}</span>;
+  });
+};
+
+const playWordAudio = (e: React.MouseEvent, word: string) => {
+  e.stopPropagation();
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = 'en-US';
+  window.speechSynthesis.speak(utterance);
+};
 
 export const PosterPreview: React.FC<PosterPreviewProps> = ({
   readingText, translationText, vocabulary,
@@ -31,7 +50,7 @@ export const PosterPreview: React.FC<PosterPreviewProps> = ({
   audioUrl, audioRef, isPlaying, isAudioLoading, isBrowserTTS,
   setIsPlaying, handlePlayAudio,
   isDownloading, onDownloadPoster, onToggleTranslation,
-  posterRef
+  posterRef, grammarSummary
 }) => {
   return (
     <div
@@ -90,60 +109,76 @@ export const PosterPreview: React.FC<PosterPreviewProps> = ({
               </h3>
             </div>
           )}
-          <div className="bg-white/40 p-3 sm:p-4 md:p-8 rounded-[2rem] border-2 border-white shadow-lg backdrop-blur-sm mx-auto w-full max-w-[95%]">
+
+          {/* Vocabulary */}
+          {vocabulary && vocabulary.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg"><Target size={18} /></div>
+                <h3 className="text-base font-black uppercase tracking-widest" style={{ color: '#0369a1' }}>Word Bank</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {vocabulary.map((item, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl flex flex-col transition-all hover:scale-[1.02] shadow-sm hover:shadow-indigo-100 bg-white border-2 border-indigo-100/50">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xl leading-tight" style={{ color: '#0c4a6e' }}>{item.word}</span>
+                        <button 
+                          onClick={(e) => playWordAudio(e, item.word)}
+                          className="text-brand-blue hover:text-brand-gold transition-colors"
+                          title="Nghe phát âm"
+                        >
+                          <Volume2 size={20} />
+                        </button>
+                      </div>
+                      <span className="text-sm font-bold font-serif text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl border border-indigo-200 shadow-sm shrink-0">{item.ipa}</span>
+                    </div>
+                    <span className="text-base font-medium italic text-slate-700 whitespace-normal leading-relaxed mb-1">{item.meaning} {item.emoji}</span>
+                    {item.example && (
+                      <div className="text-xs text-gray-700 mt-1 p-2 bg-gray-50 rounded-lg border border-gray-200 italic">
+                        <strong>Ví dụ:</strong> "{item.example}"
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Grammar Summary */}
+          {grammarSummary && (
+            <div className="mt-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-[1.5rem] shadow-sm">
+              <h4 className="text-sm font-black text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-2">
+                Ngữ pháp nổi bật
+              </h4>
+              <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
+                {grammarSummary}
+              </p>
+            </div>
+          )}
+
+          <div className="bg-white/40 mt-8 p-3 sm:p-4 md:p-8 rounded-[2rem] border-2 border-white shadow-lg backdrop-blur-sm mx-auto w-full max-w-[95%]">
             <div className="text-[11px] font-black uppercase tracking-[0.4em] mb-4 text-center" style={{ color: '#0369a1', opacity: 0.5 }}>READING PASSAGE</div>
             <div
-              className="leading-[1.6] whitespace-pre-wrap font-bold text-left md:text-justify px-2"
+              className="leading-[1.6] whitespace-pre-wrap text-left md:text-justify px-2"
               style={{
                 color: '#1e293b',
                 fontSize: readingText && readingText.length > 500 ? '18px' : readingText && readingText.length > 300 ? '22px' : readingText && readingText.length > 150 ? '26px' : '30px',
                 fontFamily: '"Outfit", sans-serif'
               }}
             >
-              {readingText}
+              {readingText ? renderMarkdown(readingText) : null}
             </div>
           </div>
 
           {showTranslation && translationText && (
-            <div className="space-y-2 pt-3" style={{ borderTop: '2px solid #fef3c7' }}>
+            <div className="space-y-2 pt-3 mt-4" style={{ borderTop: '2px solid #fef3c7' }}>
               <div className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: '#d97706' }}>Tiếng Việt</div>
               <div className="text-sm sm:text-lg leading-relaxed whitespace-pre-wrap font-bold italic" style={{ color: '#334155' }}>
                 {translationText}
               </div>
             </div>
           )}
-        </div>
-
-        {/* Vocabulary */}
-        {vocabulary && vocabulary.length > 0 && (
-          <div className="mt-6 pt-5" style={{ borderTop: '3px dashed #e2e8f0' }}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg"><Target size={18} /></div>
-              <h3 className="text-base font-black uppercase tracking-widest" style={{ color: '#0369a1' }}>Word Bank</h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {vocabulary.map((item, idx) => (
-                <div key={idx} className="p-4 rounded-2xl flex flex-col transition-all hover:scale-[1.02] shadow-sm hover:shadow-indigo-100 bg-white border-2 border-indigo-100/50">
-                  <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                    <span className="font-black text-xl leading-tight" style={{ color: '#0c4a6e' }}>{item.word}</span>
-                    <span className="text-sm font-bold font-serif text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-xl border border-indigo-200 shadow-sm shrink-0">{item.ipa}</span>
-                  </div>
-                  <span className="text-base font-medium italic text-slate-700 whitespace-normal leading-relaxed mb-1">{item.meaning} {item.emoji}</span>
-                  {item.grammarSummary && (
-                    <div className="text-xs text-blue-700 mt-2 p-2 bg-blue-50 rounded-lg border border-blue-100">
-                      <strong>Ngữ pháp:</strong> {item.grammarSummary}
-                    </div>
-                  )}
-                  {item.example && (
-                    <div className="text-xs text-gray-700 mt-1 p-2 bg-gray-50 rounded-lg border border-gray-200 italic">
-                      <strong>Ví dụ:</strong> "{item.example}"
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Footer */}

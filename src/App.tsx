@@ -14,6 +14,7 @@ import { BrandLogo } from './components/BrandLogo';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { InputPanel } from './components/InputPanel';
 import { PosterPreview } from './components/PosterPreview';
+import { ReadingTwo } from './components/ReadingTwo';
 import { SpeechEvaluator } from './components/SpeechEvaluator';
 import { CertificateModal } from './components/CertificateModal';
 import { Footer } from './components/Footer';
@@ -46,6 +47,8 @@ export default function App() {
   const [readingText2, setReadingText2] = useState<string | null>(null);
   const [translationText, setTranslationText] = useState<string | null>(null);
   const [translationText2, setTranslationText2] = useState<string | null>(null);
+  const [overallGrammar, setOverallGrammar] = useState<string | null>(null);
+  const [reading2Answers, setReading2Answers] = useState<string[] | null>(null);
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
   const [showTranslation, setShowTranslation] = useState(false);
   const [generatedTopicName, setGeneratedTopicName] = useState<string | null>(null);
@@ -103,7 +106,7 @@ export default function App() {
 
     try {
       // 1. Generate content
-      const { prompt, readingText: text, readingText2: text2, topicName, translation, translation2, vocabulary: vocab } = await generateContent(
+      const { prompt, readingText: text, readingText2: text2, topicName, translation, translation2, vocabulary: vocab, overallGrammar: genGrammar, reading2Answers: genAnswers } = await generateContent(
         topic || (contentMode === "useInput" ? "Extract text from image" : "A scene based on the provided image"), 
         level, grammarTopic, contentMode, imagePreview || undefined
       );
@@ -113,6 +116,8 @@ export default function App() {
       setTranslationText(translation);
       setTranslationText2(translation2 || null);
       setVocabulary(vocab);
+      setOverallGrammar(genGrammar || null);
+      setReading2Answers(genAnswers || null);
       setGeneratedTopicName(topicName);
       setShowTranslation(false);
       audioPlayer.setAudioUrl(null);
@@ -156,8 +161,12 @@ export default function App() {
         topicName: topicName,
         level,
         readingText: text,
+        readingText2: text2 || undefined,
         translationText: translation,
+        translationText2: translation2 || undefined,
         vocabulary: vocab,
+        overallGrammar: genGrammar,
+        reading2Answers: genAnswers,
         generatedImage: null,
         generatedPrompt: prompt,
         exerciseData: exData,
@@ -206,8 +215,12 @@ export default function App() {
 
   const handleLoadLesson = useCallback((lesson: LessonRecord) => {
     setReadingText(lesson.readingText);
+    setReadingText2(lesson.readingText2 || null);
     setTranslationText(lesson.translationText);
+    setTranslationText2(lesson.translationText2 || null);
     setVocabulary(lesson.vocabulary || []);
+    setOverallGrammar(lesson.overallGrammar || null);
+    setReading2Answers(lesson.reading2Answers || null);
     setGeneratedTopicName(lesson.topicName);
     setGeneratedPrompt(lesson.generatedPrompt);
     setExerciseData(lesson.exerciseData || null);
@@ -216,9 +229,10 @@ export default function App() {
     setShowTranslation(false);
     setCurrentLessonId(lesson.id);
     audioPlayer.setAudioUrl(null);
+    audioPlayer2.setAudioUrl(null);
     recorder.setEvaluation(null);
     setError(null);
-  }, [audioPlayer, recorder]);
+  }, [audioPlayer, audioPlayer2, recorder]);
 
   const handleExerciseComplete = useCallback((score: number) => {
     setExerciseScore(score);
@@ -435,7 +449,7 @@ export default function App() {
                   <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1">Nội dung học tập siêu hấp dẫn</span>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center text-white shadow-sm"><ImageIcon size={16} /></div>
-                    <span className="text-xs sm:text-sm font-black text-brand-blue-dark uppercase tracking-widest">Góc Học Tập Của Bé</span>
+                    <span className="text-xs sm:text-sm font-black text-brand-blue-dark uppercase tracking-widest">Góc Học Tập Của Học sinh</span>
                     {readingText && <span className="px-3 py-1 bg-red-200 text-blue-900 text-[10px] font-black rounded-full shadow-sm uppercase">{level}</span>}
                   </div>
                 </div>
@@ -551,21 +565,20 @@ export default function App() {
                       {/* Reading 2 Poster (Fill in the blanks) */}
                       {readingText2 && (
                         <div className="w-full max-w-4xl mx-auto mt-8">
-                           <PosterPreview
+                           <ReadingTwo
                             readingText={readingText2}
-                            translationText={translationText2} 
-                            vocabulary={[]}
-                            generatedTopicName="Reading 2 (Fill in the blanks)" 
-                            topic={topic} level={level}
+                            translationText={showTranslation ? translationText2 : null}
+                            vocabulary={vocabulary}
+                            answers={reading2Answers}
+                            topicName={generatedTopicName}
+                            level={level}
                             showTranslation={showTranslation}
-                            audioUrl={audioPlayer2.audioUrl} audioRef={audioPlayer2.audioRef}
-                            isPlaying={audioPlayer2.isPlaying} isAudioLoading={audioPlayer2.isAudioLoading}
-                            isBrowserTTS={audioPlayer2.isBrowserTTS}
-                            setIsPlaying={audioPlayer2.setIsPlaying} handlePlayAudio={audioPlayer2.handlePlayAudio}
-                            isDownloading={false}
-                            onDownloadPoster={() => {}} 
-                            onToggleTranslation={() => setShowTranslation(!showTranslation)}
-                            posterRef={posterRef2} 
+                            audioUrl={audioPlayer2.audioUrl}
+                            audioRef={audioPlayer2.audioRef}
+                            isPlaying={audioPlayer2.isPlaying}
+                            isAudioLoading={audioPlayer2.isAudioLoading}
+                            setIsPlaying={audioPlayer2.setIsPlaying}
+                            handlePlayAudio={audioPlayer2.handlePlayAudio}
                           />
                         </div>
                       )}
