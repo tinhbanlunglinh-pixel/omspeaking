@@ -804,7 +804,7 @@ Output JSON:
       {
         role: "user",
         parts: [
-          { text: \`Hãy nghe file audio bên dưới và đánh giá câu trả lời.\` },
+          { text: 'Hãy nghe file audio bên dưới và đánh giá câu trả lời.' },
           {
             inlineData: {
               mimeType: cleanMimeType,
