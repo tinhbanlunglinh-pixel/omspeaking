@@ -91,10 +91,23 @@ const getAI = () => {
 };
 
 // Model fallback chain — use only currently available, non-deprecated models (Gemini 3.x generation)
-const TEXT_MODELS = [
-  "gemini-3.5-flash",
-  "gemini-3.1-flash-lite",
-];
+const getTextModels = () => {
+  const defaultModels = [
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+  ];
+  if (typeof window !== "undefined") {
+    const savedModel = localStorage.getItem("GEMINI_MODEL");
+    if (savedModel && !defaultModels.includes(savedModel)) {
+      return [savedModel, ...defaultModels];
+    } else if (savedModel) {
+      return [savedModel, ...defaultModels.filter(m => m !== savedModel)];
+    }
+  }
+  return defaultModels;
+};
+
 
 // TTS-specific models (only these support responseModalities: [AUDIO] with speechConfig)
 const TTS_MODELS = [
@@ -257,7 +270,7 @@ export const generateContent = async (
     });
   }
 
-  const response = await generateWithFallback(TEXT_MODELS, {
+  const response = await generateWithFallback(getTextModels(), {
     contents: [{ role: "user", parts }],
     config: { 
       systemInstruction,
@@ -645,7 +658,7 @@ Output JSON:
   const cleanMimeType = mimeType.split(';')[0].trim() || "audio/webm";
   console.log(`[Speech Eval] Sending audio: mimeType=${cleanMimeType}, originalMime=${mimeType}, dataLength=${audioData.length}`);
 
-  const response = await generateWithFallback(TEXT_MODELS, {
+  const response = await generateWithFallback(getTextModels(), {
     contents: [
       {
         role: "user",
@@ -750,7 +763,7 @@ Output strictly a JSON object matching this schema:
   ]
 }`;
 
-  const response = await generateWithFallback(TEXT_MODELS, {
+  const response = await generateWithFallback(getTextModels(), {
     contents: [{ role: "user", parts: [{ text: `Reading Text: ${readingText}` }] }],
     config: { 
       systemInstruction,
@@ -799,7 +812,7 @@ Output JSON:
 
   const cleanMimeType = mimeType.split(';')[0].trim() || "audio/webm";
 
-  const response = await generateWithFallback(TEXT_MODELS, {
+  const response = await generateWithFallback(getTextModels(), {
     contents: [
       {
         role: "user",

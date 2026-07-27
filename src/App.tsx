@@ -361,7 +361,7 @@ export default function App() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center">
             <div className="bg-white rounded-[2rem] border-[6px] border-brand-gold shadow-xl p-4 sm:p-6 mb-6">
               <img 
-                src="https://i.postimg.cc/ht3M16P5/logo-ten.jpg" 
+                src="https://i.postimg.cc/XvxRpN61/1785032880200-7192141980250174577-7192141980250174577-83a344d5e87f6ed90f57f99b10c6f832.jpg" 
                 alt="Open Minds English Centre Logo" 
                 className="w-40 sm:w-56 h-auto object-contain" 
               />
