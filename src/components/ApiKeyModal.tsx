@@ -86,7 +86,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ show, currentApiKey, o
                     value={localKey}
                     onChange={(e) => setLocalKey(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
-                    className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono text-sm shadow-sm text-slate-900"
+                    className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono font-bold text-black text-lg shadow-sm"
                   />
                   <a 
                     href="https://aistudio.google.com/api-keys" 
