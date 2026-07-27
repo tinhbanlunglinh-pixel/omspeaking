@@ -1,0 +1,71 @@
+import React from 'react';
+import { BrandLogo } from './BrandLogo';
+
+export const Footer: React.FC = () => (
+  <footer className="bg-brand-blue-dark text-white py-10 sm:py-16">
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
+        {/* Brand */}
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="p-1.5 bg-white rounded-2xl sm:rounded-3xl border-[3px] border-brand-gold inline-flex shadow-lg shrink-0">
+            <BrandLogo className="w-16 h-16 sm:w-20 sm:h-20" />
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <h3 className="text-[16px] sm:text-[22px] font-black text-brand-gold uppercase tracking-tight whitespace-nowrap">Open Minds English Centre</h3>
+            <p className="mt-1 text-slate-200 italic text-[11px] sm:text-[14px] font-black uppercase tracking-[0.15em]">
+              Learn English to go further.
+            </p>
+          </div>
+        </div>
+
+        {/* Contact */}
+        <div className="space-y-6">
+          <h4 className="text-brand-gold font-black uppercase tracking-[0.2em] relative inline-block">
+            LIÊN HỆ
+            <div className="absolute -bottom-2 left-0 w-full h-1 bg-white/10" />
+          </h4>
+          <ul className="space-y-4">
+            <li className="flex items-start gap-3 group">
+              <span className="text-brand-blue mt-1">📍</span>
+              <div className="text-sm font-black group-hover:text-brand-gold transition-colors cursor-pointer space-y-1">
+                <div>Trụ sở chính: Khu 6 Võ Lao, xã Đông Thành, Tỉnh Phú Thọ.</div>
+                <div>Điểm dạy 2: Khu 4 Ninh Dân, xã Hoàng Cương;</div>
+                <div>Điểm dạy 3: Số 35 Hàn Thuyên, xã Thanh Ba, tỉnh Phú Thọ;</div>
+                <div>Điểm dạy 4: Khu 2 xã Đông Thành, tỉnh Phú Thọ.</div>
+              </div>
+            </li>
+            <li className="flex items-start gap-3 group">
+              <span className="text-brand-blue mt-1">📞</span>
+              <span className="text-sm font-black group-hover:text-brand-gold transition-colors cursor-pointer">Hotline: 0988520508</span>
+            </li>
+            <li className="flex items-start gap-3 group">
+              <span className="text-brand-blue mt-1">🌐</span>
+              <div className="flex flex-col gap-1">
+                <a href="https://www.facebook.com/doyenopenminds/" target="_blank" rel="noopener noreferrer" className="text-sm font-black group-hover:text-brand-gold transition-colors cursor-pointer underline decoration-1 underline-offset-2">
+                  Facebook
+                </a>
+                <a href="https://www.facebook.com/TrungTamAnhNguOpenMinds/" target="_blank" rel="noopener noreferrer" className="text-sm font-black group-hover:text-brand-gold transition-colors cursor-pointer underline decoration-1 underline-offset-2">
+                  Fanpage
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        {/* Slogan */}
+        <div className="space-y-6">
+          <h4 className="text-brand-gold font-black uppercase tracking-[0.2em] relative inline-block">
+            GIỚI THIỆU HỆ THỐNG NGOẠI NGỮ Open Minds
+            <div className="absolute -bottom-2 left-0 w-full h-1 bg-white/10" />
+          </h4>
+          <div className="bg-white/5 border border-white/10 p-6 rounded-[2rem] space-y-4">
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Hệ thống Ngoại ngữ Open Minds được xây dựng với sứ mệnh đồng hành cùng học sinh trên hành trình chinh phục tiếng Anh, mở rộng tri thức và nuôi dưỡng những ước mơ hoài bão trong tương lai.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
